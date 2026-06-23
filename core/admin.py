@@ -5,7 +5,8 @@ from django.contrib.admin import ModelAdmin, register
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.translation import gettext_lazy as _
 
-from core.models import Autor, Categoria, Compra, Editora, Livro, User
+from core.models import Autor, Categoria, Compra, Editora, ItensCompra, Livro, User
+from dill.tests.test_recursive import Model
 
 @register(Autor)
 class AutorAdmin(ModelAdmin):
@@ -35,6 +36,12 @@ class EditoraAdmin(ModelAdmin):
     search_fields = ('nome', 'email', 'cidade')
     list_filter = ('nome', 'email', 'cidade')
     ordering = ('nome', 'email', 'cidade')
+    list_per_page = 10
+
+@register(ItensCompra)
+class ItensCompraAdmin(ModelAdmin):
+    list_display = ('compra', 'livro', 'quantidade')
+    ordering = ('compra', 'livro', 'quantidade')
     list_per_page = 10
 
 @register(Livro)
