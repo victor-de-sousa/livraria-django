@@ -2,6 +2,8 @@ from rest_framework.serializers import CharField, ModelSerializer, SerializerMet
 
 from core.models import Compra, ItensCompra
 
+from django.db import transaction
+
 class ItensCompraUpdateSerializer(ModelSerializer):
     class Meta:
         model = ItensCompra
@@ -14,6 +16,7 @@ class CompraCreateUpdateSerializer(ModelSerializer):
         model = Compra
         fields = ('usuario', 'itens')
 
+    @transaction.atomic
     def create(self, validated_data):
         itens_data = validated_data.pop('itens')
         compra = Compra.objects.create(**validated_data)
@@ -21,6 +24,15 @@ class CompraCreateUpdateSerializer(ModelSerializer):
             ItensCompra.objects.create(compra=compra, **item_data)
         compra.save()
         return compra
+
+    @transaction.atomic
+    def update(self, compra, validated_data):
+        itens_data = validated_data.pop('itens', None)
+        if itens_data is not None:
+            compra.itens.all().delete()
+            for item_data in itens_data:
+                ItensCompra.objects.create(compra=compra, **itens_data)
+        return super().update(compra, validated_data)
 
 class ItensCompraSerializer(ModelSerializer):
     titulo = CharField(source='livro.titulo', read_only=True)
