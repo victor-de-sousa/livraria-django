@@ -65,22 +65,22 @@ class CompraCreateUpdateSerializer(ModelSerializer):
 
     @transaction.atomic
     def create(self, validated_data):
-        itens_data = validated_data.pop('itens')
+        itens = validated_data.pop('itens')
         compra = Compra.objects.create(**validated_data)
-        for item_data in itens_data:
-            item_data['preco'] = item_data['livro'].preco
-            ItensCompra.objects.create(compra=compra, **item_data)
+        for item in itens:
+            item['preco'] = item['livro'].preco
+            ItensCompra.objects.create(compra=compra, **item)
         compra.save()
         return compra
 
     @transaction.atomic
     def update(self, compra, validated_data):
-        itens_data = validated_data.pop('itens', None)
-        if itens_data is not None:
+        itens = validated_data.pop('itens', None)
+        if itens is not None:
             compra.itens.all().delete()
-            for item_data in itens_data:
-                item_data['preco'] = item_data['livro'].preco
-                ItensCompra.objects.create(compra=compra, **item_data)
+            for item in itens:
+                item['preco'] = item['livro'].preco
+                ItensCompra.objects.create(compra=compra, **item)
         return super().update(compra, validated_data)
 
 
