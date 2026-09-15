@@ -30,13 +30,13 @@ class ItensCompraInline(TabularInline):
 
 @register(Compra)
 class CompraAdmin(ModelAdmin):
-    list_display = ('usuario', 'status', 'total_formatado')
+    list_display = ('usuario', 'status', 'total_formatado', 'data')
     search_fields = ('usuario', 'status')
-    list_filter = ('usuario', 'status')
-    ordering = ('usuario', 'status')
+    list_filter = ('usuario', 'status', 'data')
+    ordering = ('usuario', 'status', 'data')
     list_per_page = 10
     inlines = [ItensCompraInline]
-    readonly_fields = ("total_formatado",)
+    readonly_fields = ('total_formatado', 'data')
 
     @display(description="Total")
     def total_formatado(self, obj):
