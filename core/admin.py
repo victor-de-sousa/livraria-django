@@ -1,12 +1,13 @@
 """
 Django admin customization.
 """
-from django.contrib.admin import ModelAdmin, register, TabularInline, display
+
+from django.contrib.admin import ModelAdmin, TabularInline, display, register
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.translation import gettext_lazy as _
 
 from core.models import Autor, Categoria, Compra, Editora, ItensCompra, Livro, User
-from dill.tests.test_recursive import Model
+
 
 @register(Autor)
 class AutorAdmin(ModelAdmin):
@@ -16,6 +17,7 @@ class AutorAdmin(ModelAdmin):
     ordering = ('nome', 'email')
     list_per_page = 10
 
+
 @register(Categoria)
 class CategoriaAdmin(ModelAdmin):
     list_display = ('descricao',)
@@ -24,9 +26,11 @@ class CategoriaAdmin(ModelAdmin):
     ordering = ('descricao',)
     list_per_page = 10
 
+
 class ItensCompraInline(TabularInline):
     model = ItensCompra
     extra = 1
+
 
 @register(Compra)
 class CompraAdmin(ModelAdmin):
@@ -38,10 +42,10 @@ class CompraAdmin(ModelAdmin):
     inlines = [ItensCompraInline]
     readonly_fields = ('total_formatado', 'data')
 
-    @display(description="Total")
+    @display(description='Total')
     def total_formatado(self, obj):
         """Exibe 123,45 em vez de 123.45."""
-        return f"R$ {obj.total:.2f}"
+        return f'R$ {obj.total:.2f}'
 
 
 @register(Editora)
@@ -52,11 +56,13 @@ class EditoraAdmin(ModelAdmin):
     ordering = ('nome', 'email', 'cidade')
     list_per_page = 10
 
+
 @register(ItensCompra)
 class ItensCompraAdmin(ModelAdmin):
     list_display = ('compra', 'livro', 'quantidade')
     ordering = ('compra', 'livro', 'quantidade')
     list_per_page = 10
+
 
 @register(Livro)
 class LivroAdmin(ModelAdmin):
@@ -65,6 +71,7 @@ class LivroAdmin(ModelAdmin):
     list_filter = ('editora', 'categoria')
     ordering = ('titulo', 'editora', 'categoria')
     list_per_page = 25
+
 
 @register(User)
 class UserAdmin(BaseUserAdmin):
@@ -109,4 +116,3 @@ class UserAdmin(BaseUserAdmin):
             },
         ),
     )
-
