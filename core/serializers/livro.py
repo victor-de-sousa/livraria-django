@@ -11,6 +11,18 @@ from core.models import Livro
 from uploader.models import Image
 from uploader.serializers import ImageSerializer
 
+class LivroAjustarEstoqueSerializer(Serializer):
+    quantidade = IntegerField()
+
+    def validate_quantidade(self, value):
+        livro = self.context.get('livro')
+
+        if livro:
+            nova_quantidade = livro.quantidade + value
+            if nova_quantidade < 0:
+                raise ValidationError('A quantidade em estoque não pode ser negativa.')
+        return value
+
 class LivroAlterarPrecoSerializer(Serializer):
     preco = DecimalField(max_digits=7, decimal_places=2)
 
