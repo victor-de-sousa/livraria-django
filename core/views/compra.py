@@ -7,6 +7,12 @@ from core.serializers import (
     CompraSerializer
 )
 
+from django.utils import timezone
+from rest_framework import status
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from drf_spectacular.utils import extend_schema
+
 class CompraViewSet(ModelViewSet):
     def get_queryset(self):
         usuario = self.request.user
@@ -25,3 +31,32 @@ class CompraViewSet(ModelViewSet):
         if self.action in ('create', 'update', 'partial_update'):
             return CompraCreateUpdateSerializer
         return CompraSerializer
+
+
+    @extend_schema(
+        request=None,
+        responses={200: None},
+        description="Gera um relatório de vendas do mês atual.",
+        summary="Relatório de vendas do mês",
+    )
+    @action(detail=False, methods=['get'])
+    def relatorio_vendas_mes(self, request):
+        agora = timezone.now()
+        inicio_mes = agora.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+
+        compras = Compra.objects.filter(
+                status=Compra.StatusCompra.FINALIZADO,
+                data__gte=inicio_mes
+        )
+
+        total_vendas = sum(compra.total for compra in compras)
+        quantidade_vendas = compras.count()
+
+        return Response(
+            {
+                'status': 'Relatório de vendas deste mês',
+                'total_vendas': total_vendas,
+                'quantidade_vendas': quantidade_vendas,
+            },
+            status=status.HTTP_200_OK,
+        )
