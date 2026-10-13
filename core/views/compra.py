@@ -1,18 +1,16 @@
+from django.db import transaction
+from django.utils import timezone
+from django_filters.rest_framework.backends import DjangoFilterBackend
+from drf_spectacular.utils import extend_schema
+from rest_framework import status
+from rest_framework.decorators import action
+from rest_framework.filters import OrderingFilter, SearchFilter
+from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from core.models import Compra
-from core.serializers import (
-    CompraCreateUpdateSerializer,
-    CompraListSerializer,
-    CompraSerializer
-)
+from core.serializers import CompraCreateUpdateSerializer, CompraListSerializer, CompraSerializer
 
-from django.utils import timezone
-from rest_framework import status
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from drf_spectacular.utils import extend_schema
-from django.db import transaction
 
 class CompraViewSet(ModelViewSet):
     def get_queryset(self):
@@ -25,6 +23,11 @@ class CompraViewSet(ModelViewSet):
 
     queryset = Compra.objects.all()
     serializer_class = CompraSerializer
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ['usuario__email', 'status', 'data']
+    search_fields = ['usuario__email']
+    ordering_fields = ['usuario__email', 'status', 'data']
+    ordering = ['-data']
 
     def get_serializer_class(self):
         if self.action == 'list':
@@ -32,7 +35,6 @@ class CompraViewSet(ModelViewSet):
         if self.action in ('create', 'update', 'partial_update'):
             return CompraCreateUpdateSerializer
         return CompraSerializer
-
 
     @extend_schema(
         request=None,
@@ -74,7 +76,6 @@ class CompraViewSet(ModelViewSet):
         compra.save()
 
         return Response(status=status.HTTP_200_OK, data={'status': 'Compra finalizada'})
-
 
     @extend_schema(
         request=None,
