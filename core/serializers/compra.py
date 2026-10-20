@@ -1,5 +1,6 @@
+from django.db import transaction
 from rest_framework.serializers import (
-    CharField,                                     
+    CharField,
     CurrentUserDefault,
     DateTimeField,
     HiddenField,
@@ -10,7 +11,6 @@ from rest_framework.serializers import (
 
 from core.models import Compra, ItensCompra
 
-from django.db import transaction
 
 class ItensCompraUpdateSerializer(ModelSerializer):
     class Meta:
@@ -27,6 +27,7 @@ class ItensCompraUpdateSerializer(ModelSerializer):
             raise ValidationError('Quantidade de itens maior do que a quantidade em estoque.')
         return item
 
+
 class ItensCompraListSerializer(ModelSerializer):
     livro = CharField(source='livro.titulo', read_only=True)
 
@@ -39,7 +40,6 @@ class ItensCompraSerializer(ModelSerializer):
     titulo = CharField(source='livro.titulo', read_only=True)
     editora = CharField(source='livro.editora.nome', read_only=True)
     capa = CharField(source='livro.capa.url', read_only=True)
-    
     total = SerializerMethodField()
 
     def get_total(self, item):
