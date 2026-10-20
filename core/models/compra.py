@@ -1,3 +1,5 @@
+from xml.etree.ElementInclude import default_loader
+
 from django.db import models
 
 from .user import User
@@ -28,10 +30,17 @@ class Compra(models.Model):
         default=TipoPagamento.PIX
     )
     data = models.DateTimeField(auto_now_add=True)
+    total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
-    @property
-    def total(self):
-        return sum(item.preco * item.quantidade for item in self.itens.all())
+    # @property
+    # def total(self):
+    #    return sum(item.preco * item.quantidade for item in self.itens.all())
+
+    def save(self, *args, **kwargs):
+        if self.pk:
+            self.total = sum(item.preco * item.quantidade for item in self.itens.all())
+        super().save(*args, **kwargs)
+
 
 class ItensCompra(models.Model):
     compra = models.ForeignKey(Compra, on_delete=models.CASCADE, related_name='itens')
